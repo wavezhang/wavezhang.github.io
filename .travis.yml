@@ -3,7 +3,7 @@ node_js: stable
 
 branches:
   only:
-  - master
+  - source
 # 缓存，可以节省集成的时间，这里我用了yarn，如果不用可以删除
 cache:
   directories:
@@ -24,4 +24,4 @@ after_success:
 - git add --all .
 - git commit -m "Travis CI Auto Builder"
 - git push --quiet --force https://$REPO_TOKEN@github.com/wavezhang/hexo.git
-  master:gh-pages
+  master
