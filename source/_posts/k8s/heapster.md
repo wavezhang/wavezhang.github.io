@@ -1,5 +1,8 @@
-# Kubernetes部署heapster插件
-### 介绍
+---
+title: Kubernetes部署heapster插件
+---
+
+# 介绍
 Kubernetes dashboard安装完成之后，界面并不会图形化展示集群的计量信息。
 
 ![no heapster](img/noheapster.png)
@@ -13,14 +16,14 @@ Eventer从k8s主节点读取事件然后保存到后端存储中。
 
 k8s本身会手机计量数据的，heapster会去采集这些数据然后存储起来。Heapster支持的后端存储有InfluxDB、Kafka、Elasticsearch、StatsD、Graphite等，详见[Heapster支持的后端列表](https://github.com/kubernetes/heapster/blob/master/docs/sink-configuration.md)
 
-### 配置
+# 配置
 
 本文采用InfluxDB作为存储后端，配置步骤可以参考[Heapster InfluxDB配置](https://github.com/kubernetes/heapster/blob/master/docs/influxdb.md)
 
     kubectl create -f deploy/kube-config/influxdb/
     kubectl create -f deploy/kube-config/rbac/heapster-rbac.yaml
 
-###  安装过程中存在的问题
+#  安装过程中存在的问题
 
 Pod一直处在创建中，镜像无法下载
 在docker Hub上搭建代理镜像 

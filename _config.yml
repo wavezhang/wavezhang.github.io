@@ -3,10 +3,10 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: A k8s worker
+title: Sam Cloud
 subtitle:
 description:
-author: John Doe
+author: Sam Cloud
 language:
 timezone:
 
@@ -72,7 +72,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: anodyne
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
