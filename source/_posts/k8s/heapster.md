@@ -26,5 +26,8 @@ k8s本身会手机计量数据的，heapster会去采集这些数据然后存储
 #  安装过程中存在的问题
 
 Pod一直处在创建中，镜像无法下载
-在docker Hub上搭建代理镜像 
+* 在docker Hub上搭建代理镜像 [解决gcr.io/google_container/***镜像下载失败的解决方案](http://blog.csdn.net/chenyufeng1991/article/details/79118330)
+
+* 使用docker-get命令拉取镜像 见[docker-get](http://ss.samblade.ml/docker-get.html)
+* 使用网页下载镜像 见[docker-tar](http://ss.samblade.ml/docker-tar.html)
 
