@@ -1,5 +1,7 @@
 ---
 title: Kubernetes部署heapster插件
+date: 2018-01-06 19:29:46
+tags: kubernetes, heapster, monitoring
 ---
 
 # 介绍

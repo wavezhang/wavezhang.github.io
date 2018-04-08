@@ -1,5 +1,7 @@
 ---
 title: Kubernete中使用ceph存储
+date: 2018-03-01 20:03:06
+tags: kubernetes, storage, ceph
 ---
 
 ## 环境配置
