@@ -1,7 +1,11 @@
 ---
 title: Kubernete中使用solidfire存储
 date: 2018-03-02 19:05:02
-tags: kubenretes, storage
+tags: 
+- kubenretes
+- storage
+- solidfire
+- san
 ---
 
 ## 安装iscsi客户端
