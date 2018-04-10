@@ -7,7 +7,7 @@ tags:
 - proxy
 ---
 
-A download docker image pull proxy.
+A docker image download proxy.
 
 ## Setup
 ```bash
