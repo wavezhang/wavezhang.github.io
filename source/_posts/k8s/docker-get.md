@@ -1,7 +1,10 @@
 ---
 title: docker-get
 date: 2018-03-14 21:19:47
-tags: docker-get, docker, proxy
+tags: 
+- docker-get
+- docker
+- proxy
 ---
 
 A download docker image pull proxy.
