@@ -51,12 +51,15 @@ cat backend.json
     "Endpoint": "https://admin:root1234@172.29.101.251/json-rpc/7.0",
     "SVIP": "172.29.99.8:3260",
     "TenantName": "trident",
+    "AccessGroups": [6],
     "InitiatorIFace": "default",
     "Types": [{"Type": "Bronze", "Qos": {"minIOPS": 1000, "maxIOPS": 2000, "burstIOPS": 4000}},
               {"Type": "Silver", "Qos": {"minIOPS": 4000, "maxIOPS": 6000, "burstIOPS": 8000}},
               {"Type": "Gold", "Qos": {"minIOPS": 6000, "maxIOPS": 8000, "burstIOPS": 10000}}]
 }
 ```
+这里的 TenantName 就是刚才创建的 VAG 的名称, AccessGroups 填 VAG 的 ID。
+
 
 执行安装脚本
 ```bash
@@ -173,10 +176,13 @@ tmpfs                   377.2G         0    377.2G   0% /proc/sched_debug
 
 # Debug
 ## 查看日志
+
 ```
 ./tridentctl -n trident logs
 ```
+
 ## 卸载插件
+
 ```
 ./uninstall_trident.sh -n trident -a
 ```
