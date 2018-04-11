@@ -173,15 +173,13 @@ tmpfs                   377.2G         0    377.2G   0% /proc/timer_list
 tmpfs                   377.2G         0    377.2G   0% /proc/timer_stats
 ```
 
-# Debug
-## 查看日志
-
+## Debug
+### 查看日志
 ```bash
 ./tridentctl -n trident logs
 ```
 
-## 卸载插件
-
+### 卸载插件
 ```bash
 ./uninstall_trident.sh -n trident -a
 ```
