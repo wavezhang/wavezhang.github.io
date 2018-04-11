@@ -171,8 +171,6 @@ tmpfs                   377.2G     12.0K    377.2G   0% /var/run/secrets/kuberne
 tmpfs                   377.2G         0    377.2G   0% /proc/kcore
 tmpfs                   377.2G         0    377.2G   0% /proc/timer_list
 tmpfs                   377.2G         0    377.2G   0% /proc/timer_stats
-tmpfs                   377.2G         0    377.2G   0% /proc/sched_debug
-
 ``` 
 
 # Debug
