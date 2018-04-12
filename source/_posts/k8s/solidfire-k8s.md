@@ -58,7 +58,7 @@ cat backend.json
               {"Type": "Gold", "Qos": {"minIOPS": 6000, "maxIOPS": 8000, "burstIOPS": 10000}}]
 }
 ```
-这里的 TenantName 就是刚才创建的 VAG 的名称, AccessGroups 填 VAG 的 ID。
+这里的 TenantName 是商业存储账号名，插件会自动创建这个账号, AccessGroups 填 VAG 的 ID。
 
 
 执行安装脚本
