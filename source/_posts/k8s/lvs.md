@@ -22,10 +22,11 @@ tags: LVS
                           |
 ---------------------------------------------net 192.168.2.0/24
                           |
-                      eth0|192.168.2.128
-                    +----------+
-                    |RealServer|
-                    +-----+----+
+                 ------------------
+    192.168.2.131|eth0        eth0|192.168.2.132
+          +----------+        +----------+
+          |RealServer|        |RealServer|
+          +-----+----+        +-----+----+
 
 ```
 
@@ -40,7 +41,7 @@ route add -net 192.168.43.0 netmask 255.255.255.0 gw 192.168.2.128
 2. 配置http server
 ```bash
 systemctl start nginx
-echo "192.168.2.128" > /usr/share/nginx/html/index.html
+echo "192.168.2.131" > /usr/share/nginx/html/index.html
 ```
 
 ## 配置LB
@@ -56,10 +57,13 @@ sysctl -p
 2. 配置ipvs
 ```bash
 export VIP=192.168.43.225
-export RS=192.168.2.131
-ipvsadm -A -t $VIP:80 -s wlc 
-ipvsadm -a -t $VIP:80 -r $RS:80 -m
+export RS="192.168.2.131 192.168.2.132"
+ipvsadm -A -t $VIP:80 -s lc 
+for server in $RS; do
+  ipvsadm -a -t $VIP:80 -r $server:80 -m
+done
 ```
+其中```lc```表示采用基于最小连接数的负载均衡算法
 
 # 测试
 在客户端上用浏览器或者curl 访问
@@ -69,5 +73,5 @@ http://192.168.43.225
 这时候会返回Real Server响应的内容
 ```bash
 # curl http://192.168.43.225
-192.168.2.128
+192.168.2.131
 ```
