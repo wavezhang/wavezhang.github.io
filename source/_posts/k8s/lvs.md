@@ -55,6 +55,7 @@ sysctl -p
 ```
 
 2. 配置ipvs
+
 ```bash
 export VIP=192.168.43.225
 export RS="192.168.2.131 192.168.2.132"
@@ -63,6 +64,7 @@ for server in $RS; do
   ipvsadm -a -t $VIP:80 -r $server:80 -m
 done
 ```
+
 其中```lc```表示采用基于最小连接数的负载均衡算法
 
 # 测试
