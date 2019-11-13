@@ -1,100 +1,184 @@
-# hugo-theme-pure
+# pure
 
-A port of [hexo-theme-pure](https://github.com/cofess/hexo-theme-pure) for Hugo. Powerful & Clean. [Iconfont](http://blog.cofess.com/hexo-theme-pure/iconfont/demo_fontclass.html)
+A brand new default theme for [[Hexo](https://hexo.io)].  [Preview](http://cofess.github.io/) | [中文说明文档](README.cn.md) | [iconfont](http://blog.cofess.com/hexo-theme-pure/iconfont/demo_fontclass.html)
 
-[简体中文](README-ZH.md)
+![](screenshot/pure.png)
 
-## Contribute
+## Features
 
-Since I mainly do back-end development, I don’t know anything about the front-end (`CSS` or something). It’s a hard-hitting transplant. Some of the features that I like very much don’t know how to add it. It’s a waste of time to study too long, so If you have a very good `feature` and hope to put it up, it would be best.
+- Multiple languages support
+- Comment support
+- Tags page
+- Categories page
+- Social Media
 
-The file structure of `repo` is roughly referred to [hexo-theme-pure](https://github.com/cofess/hexo-theme-pure) and should be clearer. It can be modified according to your needs. If you look at the file structure a little, you will find that the function has not been implemented.
+## Skins
 
-## Screenshots
+![](screenshot/pure-theme-black.png)
 
-![](https://raw.githubusercontent.com/xiaoheiAh/hugo-theme-pure/master/images/grey.png)
+![](screenshot/pure-theme-blue.png)
 
-![](https://raw.githubusercontent.com/xiaoheiAh/hugo-theme-pure/master/images/black.png)
+![](screenshot/pure-theme-green.png)
 
-![](https://raw.githubusercontent.com/xiaoheiAh/hugo-theme-pure/master/images/blue.png)
+![](screenshot/pure-theme-purple.png)
 
-![](https://raw.githubusercontent.com/xiaoheiAh/hugo-theme-pure/master/images/green.png)
+## Appearance
 
-![](https://raw.githubusercontent.com/xiaoheiAh/hugo-theme-pure/master/images/purple.png)
+[Home](http://cofess.github.io/) | [Archives](http://cofess.github.io/archives/) | [Categories](http://cofess.github.io/categories/) | [Tags](http://cofess.github.io/tags/) | [Repository](http://cofess.github.io/repository/) | [Books](http://cofess.github.io/books/) | [Links](http://cofess.github.io/links/) | [About](http://cofess.github.io/about/)
 
-## Installation
+## Install theme
 
-```bash
-$ cd $HUGO_ROOT
-$ git clone https://github.com/xiaoheiAh/hugo-theme-pure themes/pure
-$ ./hugo server -t pure
+Execute the following command under your `hexo` folder.
+
+```
+git clone https://github.com/cofess/hexo-theme-pure.git themes/pure
+```
+Then modify the property `theme` of the file `hexo/_config.yml`  to `theme: pure`
+
+## Update theme
+
+Execute the following command to update theme.
+
+```
+cd themes/pure
+git pull
+```
+## Install plugin
+
+### [hexo-wordcount](https://github.com/willin/hexo-wordcount)
+
+```
+npm install hexo-wordcount --save
+```
+### [hexo-generator-json-content](https://github.com/alexbruno/hexo-generator-json-content)
+
+```
+npm install hexo-generator-json-content --save
+```
+### [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)
+
+```
+npm install hexo-generator-feed --save
+```
+### [hexo-generator-sitemap](https://github.com/hexojs/hexo-generator-sitemap)
+
+```
+npm install hexo-generator-sitemap --save
+```
+### [hexo-generator-baidu-sitemap](https://github.com/coneycode/hexo-generator-baidu-sitemap)
+
+```
+npm install hexo-generator-baidu-sitemap --save
+```
+## Data files
+Sometimes you may need to use some data in templates which is not directly available in your posts, or you want to reuse the data elsewhere. For such use cases, Hexo 3 introduced the new Data files. This feature loads YAML or JSON files in source/_data folder so you can use them in your site.
+
+For example, add links.yml in source/_data folder.
+
+### links data
+
+add links.yml in source/_data folder.
+
+The format of the link :
+
+```
+Name:
+    link: http://example.com
+    avatar: http://example.com/avatar.png
+    desc: description
+```
+Add a number of links, we just need to repeat the format according to the above.
+
+## Blog optimization
+
+### [hexo-neat](https://github.com/rozbo/hexo-neat)
+
+> auto Minify html、js、css and make it neat
+
+```
+npm install hexo-neat --save
 ```
 
-### **Note** 
+You can configure this plugin in `_config.yml`.
 
-1. Please copy the config.yml under the `exampleSite` folder to the root folder of your Hugo Site. Feel free to change it. If you don't like `.yml` file, you can also convert it to you want.
+```
+# hexo-neat
+neat_enable: true
+neat_html:
+  enable: true
+  exclude:  
+neat_css:
+  enable: true
+  exclude:
+    - '*.min.css'
+neat_js:
+  enable: true
+  mangle: true
+  output:
+  compress:
+  exclude:
+    - '*.min.js' 
+```
 
-2. Your post should under the `posts` folder, like this : `hugo new posts/any.md`
+### [hexo-baidu-url-submit](https://github.com/huiwang/hexo-baidu-url-submit)
 
-## Multilingual
+```
+npm install hexo-baidu-url-submit --save
+```
 
-Translations are collected from the [`themes/even/i18n/`](https://github.com/olOwOlo/hugo-theme-even/tree/master/i18n) folder (built into the theme), as well as present in `i18n` at your root of project.
+### [hexo-translate-title](https://github.com/cometlj/hexo-translate-title)
+> translate the chinese title of Hexo blog to english words automatially
 
-You can specify `defaultContentLanguage` to use translations.
+```
+npm install hexo-translate-title --save
+```
+
+You can configure this plugin in `_config.yml`.
 
 ```yml
-defaultContentLanguage: zh # en,fr...
+translate_title:
+  translate_way: google    #google | baidu | youdao
+  youdao_api_key: XXX
+  youdao_keyfrom: XXX
+  is_need_proxy: true     #true | false
+  proxy_url: http://localhost:8123
+```
+## Mathjax Support
+
+### [hexo-renderer-markdown-it-plus](https://github.com/CHENXCHEN/hexo-renderer-markdown-it-plus)
+
+install
+
+```
+npm un hexo-renderer-marked --save
+npm i hexo-renderer-markdown-it-plus --save
 ```
 
-Currently supports English and Chinese, you can see `en.yml` and `zh.yml` under `pure/i18n`. If you want to support other language, you can copy any yml file under `i18n` and rename to new language, then feel free to translate.
+You can configure this plugin in `_config.yml`.
 
-## Favicon & Images
-
-You should put you images into `static` folder at your root project. When specify `favicon` or `donate qr code` , don't use absolute url like `/favicon.ico`, please use relative url like `favicon.ico` or `donate/alipay.png`
-
-## Menu Icons
-
-You can configure the menu according to the icons of [Iconfont](http://blog.cofess.com/hexo-theme-pure/iconfont/demo_fontclass.html), the following is configuration.
-
-```yml
-menuIcons:
-  enable: true  
-  home: icon-home-fill
-  archives: icon-archives-fill
-  categories: icon-folder
-  tags: icon-tags
-  repository: icon-project
-  books: icon-book-fill
-  links: icon-friendship
-  about: icon-cup-fill
+```
+markdown_it_plus:
+  highlight: true
+  html: true
+  xhtmlOut: true
+  breaks: true
+  langPrefix:
+  linkify: true
+  typographer:
+  quotes: “”‘’
+  plugins:
+    - plugin:
+        name: markdown-it-katex
+        enable: true
+    - plugin:
+        name: markdown-it-mark
+        enable: false  
 ```
 
-## TOC
+Article enable mathjax
 
-enable toc 
-
-```yml
-  # config
-  config:
-    toc: true
 ```
-
-
-
-## TODO
-
-- [x] TOC
-- [ ] pagination
-
-## License
-
-Released under the [MIT](https://github.com/olOwOlo/hugo-theme-even/blob/master/LICENSE.md) License.
-
-## Acknowledgements
-
-- [hexo-theme-pure](https://github.com/cofess/hexo-theme-pure)
-
-- [hugo-theme-even](https://github.com/olOwOlo/hugo-theme-even)
-
-  
+title: Hello World
+mathjax: true
+```
 
