@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Kubernete中使用ceph存储 | Sam</title>
+  <meta name="description" content="环境配置安装ceph-common所有node上安装ceph-common 1yum install -y ceph-common  配置ceph secret在ceph monitor上执行 1grep key &#x2F;etc&#x2F;ceph&#x2F;ceph.client.admin.keyring |awk &amp;apos;&amp;#123;printf &quot;%s&quot;, $NF&amp;#125;&amp;apos;|base64  将输出结果写入ceph-s">
+<meta name="keywords" content="kubernetes,storage,ceph">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernete中使用ceph存储">
+<meta property="og:url" content="http:&#x2F;&#x2F;www.samblade.top&#x2F;2018&#x2F;03&#x2F;01&#x2F;k8s&#x2F;k8s-ceph&#x2F;index.html">
+<meta property="og:site_name" content="Sam Cloud">
+<meta property="og:description" content="环境配置安装ceph-common所有node上安装ceph-common 1yum install -y ceph-common  配置ceph secret在ceph monitor上执行 1grep key &#x2F;etc&#x2F;ceph&#x2F;ceph.client.admin.keyring |awk &amp;apos;&amp;#123;printf &quot;%s&quot;, $NF&amp;#125;&amp;apos;|base64  将输出结果写入ceph-s">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-11-14T05:30:08.171Z">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://www.samblade.top/2018/03/01/k8s/k8s-ceph/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/wavezhang" target="_blank">
+          <img class="img-circle img-rotate" src="https://www.gravatar.com/avatar/d0a70bb2caa21dd3de23d8fc2b99012b?s=128" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Sam</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/wavezhang" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/LVS/" rel="tag">LVS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-get/" rel="tag">docker-get</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heapster/" rel="tag">heapster</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubenretes/" rel="tag">kubenretes</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitoring/" rel="tag">monitoring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/proxy/" rel="tag">proxy</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/san/" rel="tag">san</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solidfire/" rel="tag">solidfire</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/LVS/" style="font-size: 13px;">LVS</a> <a href="/tags/ceph/" style="font-size: 13px;">ceph</a> <a href="/tags/docker/" style="font-size: 13px;">docker</a> <a href="/tags/docker-get/" style="font-size: 13px;">docker-get</a> <a href="/tags/heapster/" style="font-size: 13px;">heapster</a> <a href="/tags/kubenretes/" style="font-size: 13px;">kubenretes</a> <a href="/tags/kubernetes/" style="font-size: 14px;">kubernetes</a> <a href="/tags/monitoring/" style="font-size: 13px;">monitoring</a> <a href="/tags/proxy/" style="font-size: 13px;">proxy</a> <a href="/tags/san/" style="font-size: 13px;">san</a> <a href="/tags/solidfire/" style="font-size: 13px;">solidfire</a> <a href="/tags/storage/" style="font-size: 14px;">storage</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/03/14/k8s/docker-get/" class="title">docker-get</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-03-14T21:19:47.000Z" itemprop="datePublished">2018-03-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/03/14/k8s/lvs/" class="title">LVS环境搭建</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-03-14T21:16:25.000Z" itemprop="datePublished">2018-03-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/03/02/k8s/solidfire-k8s/" class="title">Kubernete中使用solidfire存储</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-03-02T19:05:02.000Z" itemprop="datePublished">2018-03-02</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/03/01/k8s/k8s-ceph/" class="title">Kubernete中使用ceph存储</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-03-01T20:03:06.000Z" itemprop="datePublished">2018-03-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/01/06/k8s/heapster/" class="title">Kubernetes部署heapster插件</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-01-06T19:29:46.000Z" itemprop="datePublished">2018-01-06</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-k8s/k8s-ceph" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Kubernete中使用ceph存储
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2018/03/01/k8s/k8s-ceph/" class="article-date">
+	  <time datetime="2018-03-01T20:03:06.000Z" itemprop="datePublished">2018-03-01</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/ceph/" rel="tag">ceph</a>, <a class="article-tag-link" href="/tags/kubernetes/" rel="tag">kubernetes</a>, <a class="article-tag-link" href="/tags/storage/" rel="tag">storage</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2018/03/01/k8s/k8s-ceph/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><h3 id="安装ceph-common"><a href="#安装ceph-common" class="headerlink" title="安装ceph-common"></a>安装ceph-common</h3><p>所有node上安装ceph-common</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置ceph-secret"><a href="#配置ceph-secret" class="headerlink" title="配置ceph secret"></a>配置ceph secret</h3><p>在ceph monitor上执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep key /etc/ceph/ceph.client.admin.keyring |awk <span class="string">'&#123;printf "%s", $NF&#125;'</span>|base64</span><br></pre></td></tr></table></figure>
+
+<p>将输出结果写入ceph-secret中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># cat ceph-secret.yaml</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Secret</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">ceph-secret</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">"kubernetes.io/rbd"</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">key:</span> <span class="string">QVFCTE1ETmE3ZThhS2hBQTZGRU55N1J0YVM1YU1Ddlo1VkF4dkE9PQ==</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl creat -f ceph-secret.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置rbac"><a href="#配置rbac" class="headerlink" title="配置rbac"></a>配置rbac</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"># cat ceph-rbac.yaml</span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rbd-provisioner</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rbd-provisioner</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> <span class="string">[""]</span></span><br><span class="line">    <span class="attr">resources:</span> <span class="string">["persistentvolumes"]</span></span><br><span class="line">    <span class="attr">verbs:</span> <span class="string">["get",</span> <span class="string">"list"</span><span class="string">,</span> <span class="string">"watch"</span><span class="string">,</span> <span class="string">"create"</span><span class="string">,</span> <span class="string">"delete"</span><span class="string">]</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> <span class="string">[""]</span></span><br><span class="line">    <span class="attr">resources:</span> <span class="string">["persistentvolumeclaims"]</span></span><br><span class="line">    <span class="attr">verbs:</span> <span class="string">["get",</span> <span class="string">"list"</span><span class="string">,</span> <span class="string">"watch"</span><span class="string">,</span> <span class="string">"update"</span><span class="string">]</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> <span class="string">["storage.k8s.io"]</span></span><br><span class="line">    <span class="attr">resources:</span> <span class="string">["storageclasses"]</span></span><br><span class="line">    <span class="attr">verbs:</span> <span class="string">["get",</span> <span class="string">"list"</span><span class="string">,</span> <span class="string">"watch"</span><span class="string">]</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> <span class="string">[""]</span></span><br><span class="line">    <span class="attr">resources:</span> <span class="string">["events"]</span></span><br><span class="line">    <span class="attr">verbs:</span> <span class="string">["watch",</span> <span class="string">"list"</span><span class="string">,</span> <span class="string">"create"</span><span class="string">,</span> <span class="string">"update"</span><span class="string">,</span> <span class="string">"patch"</span><span class="string">]</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiGroups:</span> <span class="string">[""]</span></span><br><span class="line">    <span class="attr">resources:</span> <span class="string">["secrets"]</span></span><br><span class="line">    <span class="attr">verbs:</span> <span class="string">["get"]</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rbd-provisioner</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">rbd-provisioner</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rbd-provisioner</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl creat -f ceph-rbac.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置rbd-provisioner"><a href="#配置rbd-provisioner" class="headerlink" title="配置rbd provisioner"></a>配置rbd provisioner</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># cat ceph-provisioner.yaml</span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">extensions/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">rbd-provisioner</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">rbd-provisioner</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">rbd-provisioner</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">"quay.io/external_storage/rbd-provisioner:v0.1.0"</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PROVISIONER_NAME</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">ceph.com/rbd</span></span><br><span class="line">      <span class="attr">serviceAccount:</span> <span class="string">rbd-provisioner</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl creat -f ceph-provisioner.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置StorageClass"><a href="#配置StorageClass" class="headerlink" title="配置StorageClass"></a>配置StorageClass</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># cat ceph-sc.yaml</span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">storage.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">StorageClass</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">   <span class="attr">name:</span> <span class="string">ceph</span></span><br><span class="line"><span class="attr">provisioner:</span> <span class="string">ceph.com/rbd</span></span><br><span class="line"><span class="attr">parameters:</span></span><br><span class="line">  <span class="attr">monitors:</span> <span class="number">172.29</span><span class="number">.86</span><span class="number">.162</span><span class="string">:6789</span> <span class="comment"># ceph monitor地址</span></span><br><span class="line">  <span class="attr">adminId:</span> <span class="string">admin</span></span><br><span class="line">  <span class="attr">adminSecretName:</span> <span class="string">ceph-secret</span></span><br><span class="line">  <span class="attr">pool:</span> <span class="string">rbd</span></span><br><span class="line">  <span class="attr">userId:</span> <span class="string">admin</span></span><br><span class="line">  <span class="attr">userSecretName:</span> <span class="string">ceph-secret</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># cat ceph-pvc.yaml</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">PersistentVolumeClaim</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"> <span class="attr">name:</span> <span class="string">ceph-pvc</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"> <span class="attr">accessModes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ReadWriteOnce</span></span><br><span class="line"> <span class="attr">resources:</span></span><br><span class="line">   <span class="attr">requests:</span></span><br><span class="line">     <span class="attr">storage:</span> <span class="string">20Gi</span></span><br><span class="line"> <span class="attr">storageClassName:</span> <span class="string">ceph</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create -f  ceph-pvc.yaml</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># cat cept-pod.yaml</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">ceph-test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> <span class="string">Never</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">vol</span></span><br><span class="line">    <span class="attr">persistentVolumeClaim:</span></span><br><span class="line">      <span class="attr">claimName:</span> <span class="string">ceph-pvc</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">ceph-test</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">"busybox"</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">["/bin/sh",</span> <span class="string">"-c"</span><span class="string">,</span> <span class="string">"sleep 36000"</span><span class="string">]</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">vol</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">/vol</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create -f  ceph-pod.yaml</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">kubectl <span class="built_in">exec</span> -it ceph-test /bin/sh</span><br><span class="line"><span class="comment"># df -h</span></span><br><span class="line">Filesystem                Size      Used Available Use% Mounted on</span><br><span class="line">/dev/mapper/docker-8:2-9699913-b0a2bdb12e4ab87811c759041fa335dbceaa1a999136efb99c0cc2a027e529a5</span><br><span class="line">                         10.0G     34.2M     10.0G   0% /</span><br><span class="line">tmpfs                   377.2G         0    377.2G   0% /dev</span><br><span class="line">tmpfs                   377.2G         0    377.2G   0% /sys/fs/cgroup</span><br><span class="line">/dev/rbd0                19.6G     44.0M     18.5G   0% /vol</span><br><span class="line">/dev/sda2               218.0G     18.6G    188.3G   9% /dev/termination-log</span><br><span class="line">/dev/sda2               218.0G     18.6G    188.3G   9% /etc/resolv.conf</span><br><span class="line">/dev/sda2               218.0G     18.6G    188.3G   9% /etc/hostname</span><br><span class="line">/dev/sda2               218.0G     18.6G    188.3G   9% /etc/hosts</span><br><span class="line">shm                      64.0M         0     64.0M   0% /dev/shm</span><br><span class="line">tmpfs                   377.2G     12.0K    377.2G   0% /var/run/secrets/kubernetes.io/serviceaccount</span><br><span class="line">tmpfs                   377.2G         0    377.2G   0% /proc/kcore</span><br><span class="line">tmpfs                   377.2G         0    377.2G   0% /proc/timer_list</span><br><span class="line">tmpfs                   377.2G         0    377.2G   0% /proc/timer_stats</span><br><span class="line">tmpfs                   377.2G         0    377.2G   0% /proc/sched_debug</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line"><span class="comment">## Debug</span></span><br><span class="line">* 查看rbd-provisioner日志</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">kubectl <span class="built_in">log</span> $(kubectl get pod | grep rbd-provisioner | awk <span class="string">'&#123;print $1&#125;'</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看pod所在node的kubelet日志</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status kubelet.service -l</span><br></pre></td></tr></table></figure>
+
+<p>或者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">journalctl  -r -u kubelet.service</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://www.samblade.top/2018/03/01/k8s/k8s-ceph/" title="Kubernete中使用ceph存储" target="_blank" rel="external">http://www.samblade.top/2018/03/01/k8s/k8s-ceph/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/wavezhang" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://www.gravatar.com/avatar/d0a70bb2caa21dd3de23d8fc2b99012b?s=128" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/wavezhang" target="_blank"><span class="text-dark">Sam</span><small class="ml-1x">Developer</small></a></h3>
+        <div></div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/03/02/k8s/solidfire-k8s/" title="Kubernete中使用solidfire存储"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/01/06/k8s/heapster/" title="Kubernetes部署heapster插件"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/wavezhang" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+    <script defer type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-25487074-5', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</body>
+</html>
